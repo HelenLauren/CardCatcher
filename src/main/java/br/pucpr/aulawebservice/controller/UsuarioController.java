@@ -1,4 +1,4 @@
-package com.exemplo.api.controller;
+package br.pucpr.aulawebservice.controller;
 
 import org.springframework.web.bind.annotation.*;
 
