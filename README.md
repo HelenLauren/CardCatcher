@@ -27,3 +27,9 @@
 1. Clone the repository  
    ```bash
    git clone https://github.com/HelenLauren/CardCatcher.git
+    ```
+
+2. To run the project
+
+- **Backend:** mvn spring-boot:run
+- **Frontend:** npm run dev
