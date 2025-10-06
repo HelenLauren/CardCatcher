@@ -1,6 +1,6 @@
 package br.pucpr.aulawebservice.model;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,33 +11,29 @@ public class OfficialCollection {
     private Long id;
 
     @Column(nullable=false, unique=true)
-    private String name; // ex: "Base Set", "XY", "Scarlet & Violet"
+    private String name;
 
-    @OneToMany(mappedBy = "officialCollection")
+    @OneToMany(mappedBy = "officialCollection", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Card> cards = new HashSet<>();
 
     public OfficialCollection() {}
     public OfficialCollection(String name) { 
-        this.name = name;
-        }
+        this.name = name; 
+    }
 
     public Long getId() { 
-        return id; 
-        }
-
+        return id;
+    }
+    
     public String getName() { 
         return name; 
-        }
+    }
 
     public void setName(String name) { 
         this.name = name; 
-        }
+    }
 
     public Set<Card> getCards() { 
         return cards; 
-        }
-
-    public void setCards(Set<Card> cards) { 
-        this.cards = cards; 
-        }
+    }
 }
