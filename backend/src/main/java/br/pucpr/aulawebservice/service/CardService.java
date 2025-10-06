@@ -1,34 +1,52 @@
 package br.pucpr.aulawebservice.service;
 
-import br.pucpr.aulawebservice.exception.BusinessException;
+import br.pucpr.aulawebservice.dto.CardDTO;
+import br.pucpr.aulawebservice.exception.ApiException;
 import br.pucpr.aulawebservice.model.Card;
 import br.pucpr.aulawebservice.repository.CardRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CardService {
-    private final CardRepository repo;
 
-    public CardService(CardRepository repo) { this.repo = repo; }
+    private final CardRepository cardRepository;
 
-    public List<Card> listAll() { return repo.findAll(); }
-
-    public Card findById(Long id) {
-        return repo.findById(id)
-            .orElseThrow(() -> new BusinessException("ERR001", "Card not found"));
+    public CardService(CardRepository cardRepository) {
+        this.cardRepository = cardRepository;
     }
 
-    public Card save(Card card) { return repo.save(card); }
-
-    public Card update(Long id, Card updated) {
-        Card existing = findById(id);
-        existing.setName(updated.getName());
-        existing.setPrice(updated.getPrice());
-        existing.setCategory(updated.getCategory());
-        existing.setOfficialCollection(updated.getOfficialCollection());
-        return repo.save(existing);
+    public List<CardDTO> listAll() {
+        return cardRepository.findAll().stream()
+                .map(CardDTO::fromEntity)
+                .collect(Collectors.toList());
     }
 
-    public void delete(Long id) { repo.delete(findById(id)); }
+    public CardDTO getById(Long id) {
+        Card card = cardRepository.findById(id)
+                .orElseThrow(() -> new ApiException("ERR001", "Card not found"));
+        return CardDTO.fromEntity(card);
+    }
+
+    public CardDTO create(Card card) {
+        cardRepository.save(card);
+        return CardDTO.fromEntity(card);
+    }
+
+    public CardDTO update(Long id, Card cardData) {
+        Card card = cardRepository.findById(id)
+                .orElseThrow(() -> new ApiException("ERR001", "Card not found"));
+        card.setName(cardData.getName());
+        card.setPrice(cardData.getPrice());
+        card.setOfficialCollection(cardData.getOfficialCollection());
+        cardRepository.save(card);
+        return CardDTO.fromEntity(card);
+    }
+
+    public void delete(Long id) {
+        Card card = cardRepository.findById(id)
+                .orElseThrow(() -> new ApiException("ERR001", "Card not found"));
+        cardRepository.delete(card);
+    }
 }
