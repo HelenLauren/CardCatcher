@@ -1,0 +1,12 @@
+br/pucpr/tcgmanager/security/UserDetailsServiceImpl.class
+br/pucpr/tcgmanager/security/SecurityConfig.class
+br/pucpr/tcgmanager/repository/CardRepository.class
+br/pucpr/tcgmanager/repository/UserRepository.class
+br/pucpr/tcgmanager/security/JwtUtil.class
+br/pucpr/tcgmanager/model/User.class
+br/pucpr/tcgmanager/TcgmanagerApplication.class
+br/pucpr/tcgmanager/model/Role.class
+br/pucpr/tcgmanager/controller/CardController.class
+br/pucpr/tcgmanager/model/Card.class
+br/pucpr/tcgmanager/model/UserCollectionCard.class
+br/pucpr/tcgmanager/repository/UserCollectionCardRepository.class
