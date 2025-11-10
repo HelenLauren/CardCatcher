@@ -10,13 +10,13 @@ CRUD de Usuários
 
 CRUD de Cartas
 
-CRUD de Sets
+CRUD de Coleções Oficiais
 
-CRUD de Coleções
+CRUD de Coleções de Usuário
 
-CRUD de Favoritos
+CRUD de Cartas p/ troca
 
-CRUD de Trocas
+CRUD de Cartas que quer trocar
 
 ---
 
