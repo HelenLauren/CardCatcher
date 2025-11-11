@@ -4,21 +4,20 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "user_collection_cards")
+@Table(name = "wishlist")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserCollectionCard {
+public class WishList {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne @JoinColumn(name="user_id")
+    @ManyToOne(optional=false)
     private User user;
 
-    @ManyToOne @JoinColumn(name="card_id")
+    @ManyToOne(optional=false)
     private Card card;
 
-    private Integer quantity = 1;
-    private Boolean availableForTrade = false;
+    private Integer priority = 1;
 }

@@ -1,5 +1,4 @@
 package br.pucpr.tcgmanager.model;
-//chave composta para interligar os decks com as cartas
 
 import jakarta.persistence.Embeddable;
 import lombok.*;

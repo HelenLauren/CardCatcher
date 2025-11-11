@@ -12,19 +12,17 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class Deck {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
+    private LocalDateTime createdAt = LocalDateTime.now();
+
     @OneToMany(mappedBy = "deck", cascade = CascadeType.ALL)
-    private List<DeckCard> cards;
+    private List<DeckCard> deckCards;
 }

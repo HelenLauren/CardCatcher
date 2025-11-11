@@ -11,7 +11,7 @@ import lombok.*;
 @Builder
 public class OfficialDeckCard {
     @EmbeddedId
-    private OfficialDeckCardId id = new OfficialDeckCardId();
+    private OfficialDeckCardId id;
 
     @ManyToOne
     @MapsId("officialDeckId")

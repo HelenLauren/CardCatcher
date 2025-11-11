@@ -1,14 +1,11 @@
 package br.pucpr.tcgmanager.service;
 
-import br.pucpr.tcgmanager.model.Card;
-import br.pucpr.tcgmanager.model.Set;
-import br.pucpr.tcgmanager.repository.CardRepository;
-import br.pucpr.tcgmanager.repository.SetRepository;
+import br.pucpr.tcgmanager.model.*;
+import br.pucpr.tcgmanager.repository.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -18,7 +15,6 @@ import java.nio.charset.StandardCharsets;
 @Service
 @RequiredArgsConstructor
 public class PokemonTcgApiService {
-
     private final SetRepository setRepository;
     private final CardRepository cardRepository;
 
@@ -37,19 +33,13 @@ public class PokemonTcgApiService {
             try (InputStream inputStream = conn.getInputStream()) {
                 JsonNode root = mapper.readTree(inputStream);
                 JsonNode data = root.path("data");
-
-                if (!data.isArray() || data.isEmpty()) {
-                    throw new RuntimeException("Nenhuma carta encontrada com o nome: " + name);
-                }
+                if (!data.isArray() || data.isEmpty()) throw new RuntimeException("ERR-API-EMPTY");
 
                 JsonNode cardData = data.get(0);
-
-                // ---------- SET ----------
                 JsonNode setNode = cardData.path("set");
                 String setApiId = setNode.path("id").asText("");
-                String setName = setNode.path("name").asText("Unknown Set");
+                String setName = setNode.path("name").asText("Unknown");
 
-                // Verifica se o set já existe
                 Set set = setRepository.findByApiId(setApiId)
                         .orElseGet(() -> setRepository.save(Set.builder()
                                 .apiId(setApiId)
@@ -59,37 +49,28 @@ public class PokemonTcgApiService {
                                 .symbolUrl(setNode.path("images").path("symbol").asText(""))
                                 .build()));
 
-                // ---------- CARD ----------
                 String apiId = cardData.path("id").asText("");
-                String type = cardData.path("types").isArray() && cardData.path("types").size() > 0
-                        ? cardData.path("types").get(0).asText()
-                        : "Unknown";
+                Card c = cardRepository.findByApiId(apiId).orElseGet(() -> {
+                    Card card = Card.builder()
+                            .apiId(apiId)
+                            .name(cardData.path("name").asText("Unknown"))
+                            .type(cardData.path("types").isArray() && cardData.path("types").size()>0 ? cardData.path("types").get(0).asText() : "Unknown")
+                            .rarity(cardData.path("rarity").asText("Unknown"))
+                            .hp(parseHp(cardData.path("hp").asText()))
+                            .imageUrl(cardData.path("images").path("small").asText(""))
+                            .set(set)
+                            .build();
+                    return cardRepository.save(card);
+                });
 
-                Card card = Card.builder()
-                        .apiId(apiId)
-                        .name(cardData.path("name").asText("Unknown"))
-                        .type(type)
-                        .rarity(cardData.path("rarity").asText("Unknown"))
-                        .hp(parseHp(cardData.path("hp").asText()))
-                        .imageUrl(cardData.path("images").path("small").asText(""))
-                        .set(set)
-                        .build();
-
-                // Evita duplicar cartas já existentes no banco
-                return cardRepository.findByApiId(apiId)
-                        .orElseGet(() -> cardRepository.save(card));
+                return c;
             }
-
         } catch (Exception e) {
-            throw new RuntimeException("Erro ao importar carta: " + e.getMessage(), e);
+            throw new RuntimeException("ERR-API-IMPORT: "+e.getMessage(), e);
         }
     }
 
     private Integer parseHp(String hpText) {
-        try {
-            return Integer.parseInt(hpText);
-        } catch (Exception e) {
-            return null;
-        }
+        try { return Integer.parseInt(hpText); } catch (Exception e) { return null; }
     }
 }

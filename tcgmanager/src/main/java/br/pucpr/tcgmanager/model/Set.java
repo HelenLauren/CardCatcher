@@ -33,5 +33,4 @@ public class Set {
 
     @OneToMany(mappedBy = "set", cascade = CascadeType.ALL)
     private List<Card> cards;
-
 }

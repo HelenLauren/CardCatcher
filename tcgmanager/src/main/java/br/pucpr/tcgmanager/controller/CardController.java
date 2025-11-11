@@ -1,8 +1,8 @@
 package br.pucpr.tcgmanager.controller;
 
 import br.pucpr.tcgmanager.model.Card;
+import br.pucpr.tcgmanager.service.CardService;
 import br.pucpr.tcgmanager.repository.CardRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,44 +13,45 @@ import java.util.Optional;
 @RequestMapping("/api/cards")
 public class CardController {
 
-    @Autowired
-    private CardRepository repository;
+    private final CardRepository repository;
+    private final CardService service;
 
-    // List
+    public CardController(CardRepository repository, CardService service) {
+        this.repository = repository;
+        this.service = service;
+    }
+
+    // --- CRUD local (banco) ---
+
     @GetMapping
     public List<Card> getAll() {
         return repository.findAll();
     }
 
-    // Find
     @GetMapping("/{id}")
     public ResponseEntity<Card> getById(@PathVariable Long id) {
         Optional<Card> card = repository.findById(id);
         return card.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
-    // Add
     @PostMapping
     public Card create(@RequestBody Card card) {
         return repository.save(card);
     }
 
-    // Updt
     @PutMapping("/{id}")
-    public ResponseEntity<Card> update(@PathVariable Long id, @RequestBody Card cardDetails) {
-        Optional<Card> optionalCard = repository.findById(id);
-        if (!optionalCard.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        Card card = optionalCard.get();
-        card.setName(cardDetails.getName());
-        card.setType(cardDetails.getType());
-        card.setRarity(cardDetails.getRarity());
-        card.setHp(cardDetails.getHp());
-        return ResponseEntity.ok(repository.save(card));
+    public ResponseEntity<Card> update(@PathVariable Long id, @RequestBody Card details) {
+        return repository.findById(id)
+                .map(existing -> {
+                    existing.setName(details.getName());
+                    existing.setType(details.getType());
+                    existing.setRarity(details.getRarity());
+                    existing.setHp(details.getHp());
+                    return ResponseEntity.ok(repository.save(existing));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // Del
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         if (!repository.existsById(id)) {
@@ -58,5 +59,17 @@ public class CardController {
         }
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // --- Integração com API Pokémon TCG ---
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Card>> searchFromApi(@RequestParam String name) {
+        return ResponseEntity.ok(service.searchByNameFromApi(name));
+    }
+
+    @PostMapping("/import")
+    public ResponseEntity<Card> importFromApi(@RequestParam String name) {
+        return ResponseEntity.ok(service.importCardByName(name));
     }
 }

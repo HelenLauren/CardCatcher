@@ -1,5 +1,4 @@
 package br.pucpr.tcgmanager.model;
-//esse arquivo é a relaçao entre uma carta e vários decks
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +11,7 @@ import lombok.*;
 @Builder
 public class DeckCard {
     @EmbeddedId
-    private DeckCardId id = new DeckCardId();
+    private DeckCardId id;
 
     @ManyToOne
     @MapsId("deckId")
